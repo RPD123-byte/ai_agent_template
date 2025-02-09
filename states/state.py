@@ -21,6 +21,10 @@ class AgentGraphState(TypedDict):
     experiments: Annotated[list, add_messages]
     main_focus: Optional[str]
     scored_experiments: Annotated[list, add_messages]  # New field for scored experiments
+    input_text: Optional[str]  # New field for input text
+    chatgpt_response: Optional[str]  # New field for ChatGPT's response
+    user_confirmation: Optional[str]  # New field for user's confirmation
+    reason_why: Optional[str]  # New field for user's reason if response is "no"
 
 # Define the nodes in the agent graph
 def get_agent_graph_state(state: AgentGraphState, state_key: str):
@@ -138,7 +142,14 @@ def get_agent_graph_state(state: AgentGraphState, state_key: str):
             return state["scored_experiments"][-1]
         else:
             return state["scored_experiments"]
-    
+    elif state_key == "input_text":
+        return state["input_text"]
+    elif state_key == "chatgpt_response":
+        return state["chatgpt_response"]
+    elif state_key == "user_confirmation":
+        return state["user_confirmation"]
+    elif state_key == "reason_why":
+        return state["reason_why"]
     else:
         return None
 
@@ -161,5 +172,9 @@ state = {
     "current_category_index": 0,
     "experiments": [],
     "main_focus": None,
-    "scored_experiments": []  # Initialize the new field
+    "scored_experiments": [],  # Initialize the new field
+    "input_text": "",  # Initialize the new field
+    "chatgpt_response": "",  # Initialize the new field
+    "user_confirmation": "",  # Initialize the new field
+    "reason_why": ""  # Initialize the new field
 }

@@ -686,4 +686,29 @@ def end_node(state:AgentGraphState):
     return state
 
 
+def input_text(state:AgentGraphState, text, model = None):
     
+    llm = get_open_ai_json(model=model)
+    # Create the prompt
+    prompt = f"User input: {text}"
+
+    # Send the prompt to ChatGPT
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Please respond in JSON Format: " + prompt + ("Note that your last response was incorrect based on this explanation: " + state["reason_why"]) if state.get("reason_why") else prompt + "Please respond in JSON format."}
+    ]
+    response = llm.invoke(messages)
+
+    # Update the state with the response
+    state = {**state, "input_text": text, "chatgpt_response": response.content}
+    return state
+
+def output_text(state:AgentGraphState):
+    print(f"ChatGPT Response: {state['chatgpt_response']}")
+    user_response = input("Note: enter exit to terminate \nIs this correct? (yes/no): ").strip().lower()
+    append_text = None
+    # Update the state with the user's response
+    if( user_response == "no"):
+        append_text = input("Please explain why: ")
+    state = {**state, "user_confirmation": user_response, "reason_why": append_text}
+    return state

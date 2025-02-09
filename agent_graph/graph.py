@@ -18,7 +18,9 @@ from agents.agents import (
     research_agent,
     experiments_generator_agent,
     experiments_scoring_agent,
-    end_node
+    end_node,
+    input_text,
+    output_text
     )
 from prompts.prompts import (
     reviewer_prompt_template, 
@@ -158,6 +160,7 @@ def create_graph(server=None, model=None, stop=None, model_endpoint=None, profil
 
     # graph.add_edge("final_report", "end")
 
+    '''
     graph.add_node(
         "background_identifier",
         lambda state: match_industry(
@@ -297,6 +300,36 @@ def create_graph(server=None, model=None, stop=None, model_endpoint=None, profil
     graph.add_edge("experiments_generator", "experiments_scoring")
     graph.add_edge("experiments_scoring", "end")
     return graph
+    '''
+
+    graph.add_node(
+        "text_input",
+        lambda state: input_text(
+            state=state,
+            text = state["input_text"],
+            model=model,
+        )
+    )
+
+    
+
+    graph.add_node(
+        "text_output",
+        lambda state: output_text(
+            state=state,
+        )
+    )
+
+    graph.add_node("end", lambda state: end_node(state=state))
+    graph.add_edge("text_input", "text_output")
+    graph.add_conditional_edges(
+        "text_output",
+        lambda state: "end" if state.get("user_confirmation", "").lower() == "yes" else "text_input" if state.get("user_confirmation", "").lower() == "no" else "end"
+    )
+    graph.set_entry_point("text_input") # Set the entry point
+    graph.set_finish_point("end") # Set the finish point
+    return graph
+
 
 def compile_workflow(graph):
     # memory = SqliteSaver.from_conn_string(":memory:")  # Here we only save in-memory
