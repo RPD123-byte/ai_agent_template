@@ -1,3 +1,4 @@
+'''
 import requests
 import json
 import ast
@@ -85,3 +86,4 @@ class OllamaModel:
             response_formatted = HumanMessage(content=response)
             return response_formatted
 
+'''

@@ -1,3 +1,4 @@
+'''
 import json 
 import requests
 import ast
@@ -122,3 +123,4 @@ def scrape_website(state: AgentGraphState, research=None):
 #         content = f"error in scraping website, {str(e)}"
 #         state["scraper_response"].append(HumanMessage(role="system", content=str({"source": url, "content": content})))
 #         return {"scraper_response": state["scraper_response"]}
+'''

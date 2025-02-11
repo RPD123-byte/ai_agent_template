@@ -1,4 +1,7 @@
 import json
+'''
+
+import json
 import yaml
 import os
 from termcolor import colored
@@ -22,6 +25,8 @@ from states.state import AgentGraphState
 from langchain_core.messages import SystemMessage
 import langsmith
 
+from agents.json_parser_agent import json_parser_agent
+from tools.json_utils import validate_json
 
 
 def industry_creator_agent(state: AgentGraphState, prompt=industry_creator_prompt_template, model=None, server=None, guided_json=None, stop=None, model_endpoint=None, profile_file=None):
@@ -686,29 +691,41 @@ def end_node(state:AgentGraphState):
     return state
 
 
-def input_text(state:AgentGraphState, text, model = None):
+
+def json_processing_agent(state: dict, profile_file=None):
+    try:
+        with open(profile_file, "r") as f:
+            input_json = json.load(f)
+    except (json.JSONDecodeError, FileNotFoundError) as e:
+        print(f"Error loading JSON: {str(e)}")
+        state["json_validation_error"] = f"Error loading JSON: {str(e)}"
+        return state
+
+    # ✅ Process JSON structure
+    processed_state = json_parser_agent({"input_data": input_json})
+    structured_data = processed_state["structured_data"]
+
+    # ✅ Validate structured data
+    validation_result = validate_json(structured_data)
+
+    if "error" in validation_result:
+        print(f"JSON Validation Error: {validation_result['error']}")
+        state["json_validation_error"] = validation_result["error"]
+        return state
     
-    llm = get_open_ai_json(model=model)
-    # Create the prompt
-    prompt = f"User input: {text}"
+    state["structured_data"] = structured_data
 
-    # Send the prompt to ChatGPT
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Please respond in JSON Format: " + prompt + ("Note that your last response was incorrect based on this explanation: " + state["reason_why"]) if state.get("reason_why") else prompt + "Please respond in JSON format."}
-    ]
-    response = llm.invoke(messages)
-
-    # Update the state with the response
-    state = {**state, "input_text": text, "chatgpt_response": response.content}
+    print(f"JSON Processing Completed: {structured_data}")
+    
     return state
 
-def output_text(state:AgentGraphState):
-    print(f"ChatGPT Response: {state['chatgpt_response']}")
-    user_response = input("Note: enter exit to terminate \nIs this correct? (yes/no): ").strip().lower()
+'''
+def humanConfirmLoop(state):
+    structured_data_str = json.dumps(state["structured_data"], indent=4)
+    user_response = input(structured_data_str + "\n" + "Is the output correct? (yes/no): ")
     append_text = None
-    # Update the state with the user's response
-    if( user_response == "no"):
+    if user_response == "no":
         append_text = input("Please explain why: ")
-    state = {**state, "user_confirmation": user_response, "reason_why": append_text}
+    state["human_confirm"] = user_response
+    state["human_append"] = append_text
     return state

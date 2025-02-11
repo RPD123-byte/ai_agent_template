@@ -1,3 +1,4 @@
+'''
 import os
 import ast
 import requests
@@ -54,3 +55,4 @@ def get_google_serper(state:AgentGraphState, plan):
         return {**state, "serper_response": f"Request error occurred: {req_err}"}
     except KeyError as key_err:
         return {**state, "serper_response": f"Key error occurred: {key_err}"}
+'''

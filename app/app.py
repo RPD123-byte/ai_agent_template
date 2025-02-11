@@ -1,56 +1,33 @@
-from agent_graph.graph import create_graph, compile_workflow
-
-# server = 'ollama'
-# model = 'llama3:instruct'
-# model_endpoint = None
-
-server = 'openai'
-model = 'gpt-4o'
-model_endpoint = None
-
-# server = 'vllm'
-# model = 'meta-llama/Meta-Llama-3-70B-Instruct' # full HF path
-# runpod_endpoint = 'https://t3o6jzhg3zqci3-8000.proxy.runpod.net/' 
-# model_endpoint = runpod_endpoint + 'v1/chat/completions'
-# stop = "<|end_of_text|>"
-
-iterations = 40
-
-print ("Creating graph and compiling workflow...")
-graph = create_graph(server=server, model=model, model_endpoint=model_endpoint, profile_file="profile.json")
-workflow = compile_workflow(graph)
-print ("Graph and workflow created.")
-
+import json
+from agent_graph.graph import GraphExecutor
 
 if __name__ == "__main__":
-    verbose = False
+    executor = GraphExecutor()
 
-    while True:
-        query = input("Note: enter exit to terminate\nPlease enter your text: ")
-        # query = input("Are You Ready: ")
-        #query = "go"
+    # Load unstructured JSON file
+    with open("unstructured_data.json", "r") as file:
+        input_json = json.load(file)
 
+    # Store input JSON in state
+    executor.state["input_json"] = json.dumps(input_json)
 
-        if query.lower() == "exit":
-             break
-        dict_inputs = {"input_text": query}
-        thread = {"configurable": {"thread_id": "4"}}
-        limit = {"recursion_limit": iterations}
+    # Run AI Agent
+    executor.execute()
 
-        # for event in workflow.stream(
-        #     dict_inputs, thread, limit, stream_mode="values"
-        #     ):
-        #     if verbose:
-        #         print("\nState Dictionary:", event)
-        #     else:
-        #         print("\n")
+    # Debugging - Print stored schema & structured data
+    print("\n🔹 Generated JSON Schema:")
+    print(json.dumps(executor.state.get("json_schema", {}), indent=4))
 
-        for event in workflow.stream(
-            dict_inputs, limit
-            ):
-            if verbose:
-                print("\nState Dictionary:", event)
-            else:
-                print("\n")
+    print("\n🔹 Structured JSON Data:")
+    structured_data = executor.state.get("structured_data")
 
-    
+    if structured_data:
+        # Save the structured JSON to a file
+        with open("structured_output.json", "w") as f:
+            json.dump(structured_data, f, indent=4)
+
+        print("\n✅ Structured JSON saved to `structured_output.json`")
+        # Print for verification
+        print(json.dumps(structured_data, indent=4))  
+    else:
+        print("❌ ERROR: No structured data generated.")
