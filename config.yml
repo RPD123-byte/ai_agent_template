@@ -1,0 +1,6 @@
+database:
+  host: "localhost"  # Change if using a remote database
+  port: 5432          # Default PostgreSQL port
+  name: "postgres"
+  user: "postgres"
+  password: 20052013
