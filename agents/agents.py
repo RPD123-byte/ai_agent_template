@@ -1,3 +1,4 @@
+'''
 import json
 import yaml
 import os
@@ -22,6 +23,8 @@ from states.state import AgentGraphState
 from langchain_core.messages import SystemMessage
 import langsmith
 
+from agents.json_parser_agent import json_parser_agent
+from tools.json_utils import validate_json
 
 
 def industry_creator_agent(state: AgentGraphState, prompt=industry_creator_prompt_template, model=None, server=None, guided_json=None, stop=None, model_endpoint=None, profile_file=None):
@@ -686,4 +689,32 @@ def end_node(state:AgentGraphState):
     return state
 
 
+
+def json_processing_agent(state: dict, profile_file=None):
+    try:
+        with open(profile_file, "r") as f:
+            input_json = json.load(f)
+    except (json.JSONDecodeError, FileNotFoundError) as e:
+        print(f"Error loading JSON: {str(e)}")
+        state["json_validation_error"] = f"Error loading JSON: {str(e)}"
+        return state
+
+    # ✅ Process JSON structure
+    processed_state = json_parser_agent({"input_data": input_json})
+    structured_data = processed_state["structured_data"]
+
+    # ✅ Validate structured data
+    validation_result = validate_json(structured_data)
+
+    if "error" in validation_result:
+        print(f"JSON Validation Error: {validation_result['error']}")
+        state["json_validation_error"] = validation_result["error"]
+        return state
     
+    state["structured_data"] = structured_data
+
+    print(f"JSON Processing Completed: {structured_data}")
+    
+    return state
+
+'''

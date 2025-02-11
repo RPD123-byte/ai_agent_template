@@ -1,3 +1,4 @@
+'''
 import os
 from datetime import datetime, timezone
 import yaml
@@ -107,3 +108,4 @@ def custom_print(message, stdscr=None, scroll_pos=0):
         return num_lines
     else:
         print(message)
+'''

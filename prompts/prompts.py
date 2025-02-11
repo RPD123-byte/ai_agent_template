@@ -1,3 +1,4 @@
+'''
 industry_creator_prompt_template = """
 You are an industry creator. Your responsibility is to create a comprehensive profile for a given industry if it doesn't already exist in the business data.
 The profile should include the following sections: Industry Name, Main Focuses (with specific strategies for growth), and Background information.
@@ -556,3 +557,4 @@ reviewer_guided_json = {
     },
     "required": ["feedback", "pass_review", "comprehensive", "citations_provided", "relevant_to_research_question", "suggest_next_agent"]
 }
+'''

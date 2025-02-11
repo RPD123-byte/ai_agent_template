@@ -1,0 +1,7 @@
+{
+    "info": "User details",
+    "userData": [
+        {"name": "Alice", "yearsOld": "25", "contact": {"mail": "alice@example.com"}},
+        {"name": "Bob", "details": {"age": "30", "email": "bob@example.com"}}
+    ]
+}

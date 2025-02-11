@@ -1,3 +1,4 @@
+'''
 import requests
 import json
 from langchain_core.messages.human import HumanMessage
@@ -135,3 +136,4 @@ class VllmModel:
             response = {"error": f"Error in invoking model! {str(e)}"}
             response_formatted = HumanMessage(content=response)
             return response_formatted
+'''

@@ -1,6 +1,0 @@
-OPENAI_API_KEY: "YOUR API KEY"
-SERPER_API_KEY: "YOUR API KEY"
-LANGSMITH_API_KEY: "YOUR API KEY"
-LANGCHAIN_TRACING_V2: "true"
-LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
-LANGCHAIN_PROJECT: "Whatever you want to name your project"
