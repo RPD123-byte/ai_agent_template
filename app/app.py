@@ -17,7 +17,7 @@ model_endpoint = None
 iterations = 40
 
 print ("Creating graph and compiling workflow...")
-graph = create_graph(server=server, model=model, model_endpoint=model_endpoint, profile_file="profile2.json")
+graph = create_graph(server=server, model=model, model_endpoint=model_endpoint, profile_file="profile.json")
 workflow = compile_workflow(graph)
 print ("Graph and workflow created.")
 

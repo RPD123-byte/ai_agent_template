@@ -684,6 +684,3 @@ def final_report(state:AgentGraphState, final_response=None):
 def end_node(state:AgentGraphState):
     state = {**state, "end_chain": "end_chain"}
     return state
-
-
-    

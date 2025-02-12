@@ -1,0 +1,6 @@
+Extract the following structured information from the text:
+- Name
+- Email
+- Phone Number
+
+Ensure all fields are properly formatted. If a field is missing, return 'None'.

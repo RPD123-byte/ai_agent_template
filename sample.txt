@@ -1,0 +1,29 @@
+Name: John Doe  
+Email: johndoe@example.com  
+Phone: 123-456-7890  
+Address: 1234 Elm Street, Springfield, IL, 62704  
+Date of Birth: 1992-05-14  
+Occupation: Software Engineer  
+Company: TechCorp Inc.  
+LinkedIn: https://www.linkedin.com/in/johndoe  
+GitHub: https://github.com/johndoe  
+
+Experience:  
+John has over 8 years of experience in software engineering, specializing in backend development and AI integration.  
+He has worked with Python, Java, and cloud computing platforms.  
+
+Education:  
+Bachelor's Degree in Computer Science from the University of Illinois (2010-2014).  
+
+Projects:  
+- Developed an AI-driven chatbot for customer support, reducing response time by 40%.  
+- Built a scalable data pipeline for real-time analytics.  
+
+Skills:  
+- Programming Languages: Python, Java, JavaScript  
+- Cloud Platforms: AWS, GCP, Azure  
+- Databases: PostgreSQL, MongoDB, MySQL  
+
+References:  
+Jane Smith - Senior Manager, TechCorp Inc. - jane.smith@techcorp.com  
+Mike Johnson - CTO, AI Solutions Ltd. - mike.johnson@aisolutions.com  
