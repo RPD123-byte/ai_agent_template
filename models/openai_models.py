@@ -1,6 +1,7 @@
 from langchain_openai import ChatOpenAI
 from langsmith import Client
 from utils.helper_functions import load_config
+
 import os
 
 config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.yaml')
