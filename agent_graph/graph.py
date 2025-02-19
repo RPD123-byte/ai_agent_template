@@ -3,6 +3,7 @@ from states.state import AgentState
 from agents.json_parser_agent import json_parser_agent as json_parser_agent
 from agents.json_structurer_agent import json_structurer_agent
 from agents.agents import humanConfirmLoop
+from agents.agents import text_to_structure
 
 
 class GraphExecutor:
@@ -14,16 +15,21 @@ class GraphExecutor:
         self.graph.add_node("json_parser", func=json_parser_agent)
         self.graph.add_node("json_structurer", func=json_structurer_agent)
         self.graph.add_node("human_confirm", func=humanConfirmLoop)
+        self.graph.add_node("text_to_structure", func=text_to_structure)
     
 
         # Define execution flow
         # Process Schema first
         self.graph.add_edge("json_parser", "json_structurer")  
+        self.graph.add_edge("text_to_structure", "human_confirm")
         self.graph.add_edge("json_structurer", "human_confirm")
 
-
-    def execute(self, start_node="json_parser"):
-        current_node = start_node
+    #"json_parser"
+    def execute(self):
+        if self.state["input_json"] != None:
+            current_node = "json_parser"
+        if self.state["input_text_file"] != None:
+            current_node = "text_to_structure"
         while current_node:
             node_func = self.graph.nodes[current_node]["func"]
             response = node_func(self.state)
@@ -34,7 +40,10 @@ class GraphExecutor:
                 if self.state.get("human_confirm", "").lower() == "yes":
                     current_node = None
                 elif self.state.get("human_confirm", "").lower() == "no":
-                    current_node = "json_structurer"
+                    if self.state["start_point"] == 'text':
+                        current_node = "text_to_structure"
+                    elif self.state["start_point"] == 'json':
+                        current_node = "json_parser"
                 else:
                     current_node = None
 

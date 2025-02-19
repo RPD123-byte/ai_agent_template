@@ -4,12 +4,40 @@ from agent_graph.graph import GraphExecutor
 if __name__ == "__main__":
     executor = GraphExecutor()
 
+    schema = {
+        "name": r"Name:\s*([\w\s]+)",
+        "email": r"Email:\s*([\w.-]+@[\w.-]+\.\w+)",
+        "phone": r"Phone:\s*(\d{3}-\d{3}-\d{4})",
+        "address": r"Address:\s*([\w\s,]+)",
+        "dob": r"Date of Birth:\s*([\d-]+)",
+        "occupation": r"Occupation:\s*(.+)",
+        "company": r"Company:\s*(.+)",
+        "linkedin": r"LinkedIn:\s*(https?://[\w./-]+)",
+        "github": r"GitHub:\s*(https?://[\w./-]+)",
+
+        # Multi-line Fields
+        "experience": r"Experience:\s*([\s\S]+?)\n\n",  
+        "education": r"Education:\s*([\s\S]+?)\n\n",
+        "projects": r"Projects:\s*([\s\S]+?)\n\n",
+        "skills": r"Skills:\s*([\s\S]+?)\n\n",
+        "references": r"References:\s*([\s\S]+)"
+    }
     # Load unstructured JSON file
     with open("unstructured_data.json", "r") as file:
         input_json = json.load(file)
 
-    # Store input JSON in state
-    executor.state["input_json"] = json.dumps(input_json)
+    with open("sample.txt", 'r') as file:
+            text = file.read()
+
+    #Set standard to none
+    executor.state['input_json'] = None
+    executor.state["input_text_file"] = None
+    executor.state["schema"] = None
+
+    # Store input JSON or text in state.. can test with different options
+    #executor.state["input_json"] = json.dumps(input_json)
+    executor.state["input_text_file"] = text
+    executor.state["schema"] = schema
 
     # Run AI Agent
     executor.execute()

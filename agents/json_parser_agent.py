@@ -3,6 +3,7 @@ from models.openai_models import get_open_ai_json
 
 def json_parser_agent(state):
     llm = get_open_ai_json()
+    state["start_point"] = 'json'
 
     unstructured_json = state.get("input_json", "{}")
 

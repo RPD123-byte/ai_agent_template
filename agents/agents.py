@@ -1,4 +1,8 @@
 import json
+
+from agents.text_to_structured_agent import process_text
+from models.openai_models import get_open_ai_json
+import re
 '''
 
 import json
@@ -729,3 +733,79 @@ def humanConfirmLoop(state):
     state["human_confirm"] = user_response
     state["human_append"] = append_text
     return state
+
+def text_to_structure(state):
+    schema = state["schema"]
+    state["start_point"] = "text"
+    schema = state["schema"]
+    state["start_point"] = "text"
+    input_text = state["input_text_file"]
+    human_append = state.get("human_append", "")
+    schema = state.get("schema", {})
+    llm = get_open_ai_json()
+
+    prompt = (
+        "Analyze the following unstructured text data and its set schema"
+        "Transform the data into a structured format that follows the schema while ensuring consistency. "
+        "Apply these universal rules:\n"
+        "- Detect and standardize field names (e.g., 'yearsOld' → 'age', 'mail' → 'email').\n"
+        "- Convert age values to integers if they are stored as strings.\n"
+        "- Flatten nested objects where possible, keeping meaningful relationships.\n"
+        "- Ensure all email-related fields use the standard name 'email'.\n"
+        "- Do not assume any specific field names; adjust dynamically based on context.\n\n"
+        "- This last rule takes precedence over others: " + human_append + "\n\n"
+        f"Schema:\n{json.dumps(schema, indent=4)}\n\n"
+        f"Unstructured Data:\n{input_text}\n\n"
+        "Return only valid JSON output without any additional text or explanation."
+    )
+    input_text = state["input_text_file"]
+    human_append = state.get("human_append", "")
+    schema = state.get("schema", {})
+    llm = get_open_ai_json()
+
+    prompt = (
+        "Analyze the following unstructured text data and its set schema"
+        "Transform the data into a structured format that follows the schema while ensuring consistency. "
+        "Apply these universal rules:\n"
+        "- Detect and standardize field names (e.g., 'yearsOld' → 'age', 'mail' → 'email').\n"
+        "- Convert age values to integers if they are stored as strings.\n"
+        "- Flatten nested objects where possible, keeping meaningful relationships.\n"
+        "- Ensure all email-related fields use the standard name 'email'.\n"
+        "- Do not assume any specific field names; adjust dynamically based on context.\n\n"
+        "- This last rule takes precedence over others: " + human_append + "\n\n"
+        f"Schema:\n{json.dumps(schema, indent=4)}\n\n"
+        f"Unstructured Data:\n{input_text}\n\n"
+        "Return only valid JSON output without any additional text or explanation."
+    )
+        
+    response = llm(prompt)  
+
+    # Debugging - Print raw response
+    response_text = response.choices[0].message.content.strip()
+    print("\n🔹 OpenAI API Response (Raw):")
+    print(response_text)
+
+    # Try extracting JSON from Markdown code block (```json ... ```)
+    match = re.search(r'```json\n(.*?)\n```', response_text, re.DOTALL)
+    if match:
+        cleaned_json = match.group(1)
+    else:
+        # Try extracting the first valid JSON object in response
+        json_match = re.search(r'({.*})', response_text, re.DOTALL)
+        if json_match:
+            cleaned_json = json_match.group(1)
+        else:
+            print("❌ ERROR: OpenAI did not return JSON in a recognizable format.")
+            return {"error": "No valid JSON detected in OpenAI response"}
+
+    # Debugging - Print cleaned JSON
+    print("\n🔹 Extracted JSON (Cleaned):")
+    print(cleaned_json)
+
+    # Convert cleaned string to JSO
+    structured_output = json.loads(cleaned_json)
+    # Store structured data in state
+    state["structured_data"] = structured_output  
+    return state
+    
+

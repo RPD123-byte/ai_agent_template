@@ -1,15 +1,4 @@
 {
-    "info": "User details",
-    "userData": [
-        {
-            "name": "Alice",
-            "age": 25,
-            "email": "alice@example.com"
-        },
-        {
-            "name": "Bob",
-            "age": 30,
-            "email": "bob@example.com"
-        }
-    ]
+    "name!": "tyler",
+    "email": "fakeemail@gmail.com"
 }
