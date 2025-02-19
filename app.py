@@ -3,34 +3,57 @@ from graph import get_graph
 
 
 
-def run_agent(state):
+def run_agent(states): #def run_agent(state)
     """
     Run the agent workflow
     """
-    state = insert_to_db_agent(state)
-    
+    #state = insert_to_db_agent(state)
+
+    for state in states: #edited for loop
+        insert_to_db_agent(state)
+
     print("Data insertion workflow completed.")
-    return state 
+    #return state 
 
+
+# can insert which command you want (alter/insert), input info, and run it
 if __name__ == "__main__":
-    #Testing the agent
-    state = {
-         "instructions": {
-            "type": "alter",
-            "target_table" : "users"
+    #Testing the agent (List of dictionaries)
+    states = [ #originally state
+        {
+            "instructions": {
+                "type": "insert",
+                "target_table":"student"
+            },
+            "structured_data":{
+                "name":"John",
+                "id":123
+            }
         },
-        "structured_data": {
-            "column_name": "age",
-            "type": "INT",
-            "name": "Sue",
-            "email": "sue@gmail.com",
-            "street": "123 Main St"
-            #"column name": "new column name type columm", #if DDL
-            #"type":"data type",
-
-            #if DML give all corresponding values
-            #"column names" : ["name", "email", "street", "city", "state"] ,
-            #"column values" :["Sue","sue@gmail.com", "123 main st", "charlotte", "NC"]
-        }
-    }  # Initialize the state
-    run_agent(state)
+        {
+            # Will bascically alter if there is somethign to alter 
+            "instructions": {
+                "type": "alter", #change command accordingly (alter/insert)
+                "target_table" : "student" # change name of the table accordingly
+            },
+            "structured_data": {
+                "column_name" : "rank",
+                "type" : "INT"
+                #"column_name": "email",
+                #"type": "INT",
+            },
+        },
+        
+        # {
+        #     "instructions": {
+        #         "type": "insert",  # Step 2: Insert a new row
+        #         "target_table": "student"
+        #     },
+        #     "structured_data": {
+        #         "name": "John",
+        #         "id": 123,
+        #     }
+        # }
+        
+    ] # Initialize the state
+    run_agent(states) #originally run_agent(state)
