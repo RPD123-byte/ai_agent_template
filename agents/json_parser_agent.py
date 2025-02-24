@@ -3,8 +3,6 @@ from models.openai_models import get_open_ai_json
 
 def json_parser_agent(state):
     llm = get_open_ai_json()
-    state["start_point"] = 'json'
-
     unstructured_json = state.get("input_json", "{}")
 
     prompt = (
@@ -23,7 +21,7 @@ def json_parser_agent(state):
         schema_output = json.loads(response.choices[0].message.content)  
         # Store in state
         state["json_schema"] = schema_output  
-        return schema_output
+        return state
     except json.JSONDecodeError:
         print("❌ ERROR: Failed to parse schema response.")
         return {"error": "Failed to parse schema response"}

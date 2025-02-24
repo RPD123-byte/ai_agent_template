@@ -55,7 +55,7 @@ def json_structurer_agent(state):
         structured_output = json.loads(cleaned_json)
         # Store structured data in state
         state["structured_data"] = structured_output  
-        return structured_output
+        return state
     except json.JSONDecodeError:
         print("❌ ERROR: Failed to parse structured data response.")
         return {"error": "Failed to parse structured data response"}

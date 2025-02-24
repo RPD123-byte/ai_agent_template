@@ -724,6 +724,13 @@ def json_processing_agent(state: dict, profile_file=None):
     return state
 
 '''
+def startAgent(state):
+    if state.get("input_json") != None:
+        state["start_point"] = "json"
+    else: 
+        state["start_point"] = "text"
+    return state
+
 def humanConfirmLoop(state):
     structured_data_str = json.dumps(state["structured_data"], indent=4)
     user_response = input(structured_data_str + "\n" + "Is the output correct? (yes/no): ")
@@ -735,29 +742,6 @@ def humanConfirmLoop(state):
     return state
 
 def text_to_structure(state):
-    schema = state["schema"]
-    state["start_point"] = "text"
-    schema = state["schema"]
-    state["start_point"] = "text"
-    input_text = state["input_text_file"]
-    human_append = state.get("human_append", "")
-    schema = state.get("schema", {})
-    llm = get_open_ai_json()
-
-    prompt = (
-        "Analyze the following unstructured text data and its set schema"
-        "Transform the data into a structured format that follows the schema while ensuring consistency. "
-        "Apply these universal rules:\n"
-        "- Detect and standardize field names (e.g., 'yearsOld' → 'age', 'mail' → 'email').\n"
-        "- Convert age values to integers if they are stored as strings.\n"
-        "- Flatten nested objects where possible, keeping meaningful relationships.\n"
-        "- Ensure all email-related fields use the standard name 'email'.\n"
-        "- Do not assume any specific field names; adjust dynamically based on context.\n\n"
-        "- This last rule takes precedence over others: " + human_append + "\n\n"
-        f"Schema:\n{json.dumps(schema, indent=4)}\n\n"
-        f"Unstructured Data:\n{input_text}\n\n"
-        "Return only valid JSON output without any additional text or explanation."
-    )
     input_text = state["input_text_file"]
     human_append = state.get("human_append", "")
     schema = state.get("schema", {})

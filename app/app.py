@@ -1,9 +1,12 @@
 import json
-from agent_graph.graph import GraphExecutor
+from langgraph.graph import StateGraph
+from agent_graph.graph import create_graph  # Import the LangGraph builder
 
 if __name__ == "__main__":
-    executor = GraphExecutor()
+    # Initialize LangGraph instead of GraphExecutor
+    graph = create_graph()
 
+    # Your existing schema and data loading
     schema = {
         "name": r"Name:\s*([\w\s]+)",
         "email": r"Email:\s*([\w.-]+@[\w.-]+\.\w+)",
@@ -22,40 +25,49 @@ if __name__ == "__main__":
         "skills": r"Skills:\s*([\s\S]+?)\n\n",
         "references": r"References:\s*([\s\S]+)"
     }
-    # Load unstructured JSON file
+    
     with open("unstructured_data.json", "r") as file:
         input_json = json.load(file)
-
+    
     with open("sample.txt", 'r') as file:
-            text = file.read()
+        text = file.read()
 
-    #Set standard to none
-    executor.state['input_json'] = None
-    executor.state["input_text_file"] = None
-    executor.state["schema"] = None
+    # Create initial state matching your TypedDict structure
+    initial_state = {
+        "input_json": None,          # Set to json.dumps(input_json) if using JSON
+        "input_text_file": text,     # Using text input in this example
+        "schema": schema,
+        "start_point": None,       # Explicit starting point
+        "human_confirm": None,
+        "json_parser_response": None,
+        "json_structurer_response": None,
+        "text_to_structure_response": None,
+        "structured_data": None,
+        "human_append": "",
+        "json_schema": None
+    }
 
-    # Store input JSON or text in state.. can test with different options
-    #executor.state["input_json"] = json.dumps(input_json)
-    executor.state["input_text_file"] = text
-    executor.state["schema"] = schema
+    # Execute the graph
 
-    # Run AI Agent
-    executor.execute()
+    final_state = graph.invoke(initial_state)
 
-    # Debugging - Print stored schema & structured data
+
+
+
+    # Output results (same as before)
     print("\n🔹 Generated JSON Schema:")
-    print(json.dumps(executor.state.get("json_schema", {}), indent=4))
+    print(json.dumps(final_state.get("json_schema", {}), indent=4))
 
     print("\n🔹 Structured JSON Data:")
-    structured_data = executor.state.get("structured_data")
+    structured_data = final_state.get("structured_data")
 
     if structured_data:
-        # Save the structured JSON to a file
         with open("structured_output.json", "w") as f:
             json.dump(structured_data, f, indent=4)
-
         print("\n✅ Structured JSON saved to `structured_output.json`")
-        # Print for verification
-        print(json.dumps(structured_data, indent=4))  
+        print(json.dumps(structured_data, indent=4))
     else:
         print("❌ ERROR: No structured data generated.")
+
+
+

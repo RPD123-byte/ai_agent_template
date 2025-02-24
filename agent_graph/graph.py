@@ -1,52 +1,53 @@
-import networkx as nx
+from langgraph.graph import StateGraph, END
 from states.state import AgentState
-from agents.json_parser_agent import json_parser_agent as json_parser_agent
+from agents.json_parser_agent import json_parser_agent
 from agents.json_structurer_agent import json_structurer_agent
-from agents.agents import humanConfirmLoop
-from agents.agents import text_to_structure
+from agents.agents import humanConfirmLoop, text_to_structure, startAgent
 
 
-class GraphExecutor:
-    def __init__(self):
-        self.graph = nx.DiGraph()
-        self.state = AgentState()
+def create_graph():
+    builder = StateGraph(AgentState)
 
-        # Define agent nodes
-        self.graph.add_node("json_parser", func=json_parser_agent)
-        self.graph.add_node("json_structurer", func=json_structurer_agent)
-        self.graph.add_node("human_confirm", func=humanConfirmLoop)
-        self.graph.add_node("text_to_structure", func=text_to_structure)
+    #Defines starting point based on our state
+
+    builder.set_entry_point("start")
+    builder.add_node("start", startAgent)
+    builder.add_node("json_parser", json_parser_agent)
+    builder.add_node("json_structurer", json_structurer_agent)
+    builder.add_node("human_confirm_looper", humanConfirmLoop)
+    builder.add_node("text_to_structure", text_to_structure)
+
     
+    
+    # Main processing flow
+    builder.add_conditional_edges(
+        "start",
+        lambda state: "json_parser" if state.get("start_point") == "json" else "text_to_structure",
+        {
+            "json_parser": "json_parser",
+            "text_to_structure": "text_to_structure"
+        }
+    )
+    builder.add_edge("json_parser", "json_structurer")
+    builder.add_edge("json_structurer", "human_confirm_looper")
+    builder.add_edge("text_to_structure", "human_confirm_looper")
 
-        # Define execution flow
-        # Process Schema first
-        self.graph.add_edge("json_parser", "json_structurer")  
-        self.graph.add_edge("text_to_structure", "human_confirm")
-        self.graph.add_edge("json_structurer", "human_confirm")
+    # Human confirmation conditional flow
+    def confirmation_router(state):
+        if state.get("human_confirm", "").lower() == "yes":
+            return END
+        elif state.get("start_point") == "text":
+            return "text_to_structure"
+        return "json_parser"  # Default to JSON path
+    
+    builder.add_conditional_edges(
+        "human_confirm_looper",
+        confirmation_router,
+        {
+            "json_parser": "json_parser",
+            "text_to_structure": "text_to_structure",
+            END: END
+        }
+    )
 
-    #"json_parser"
-    def execute(self):
-        if self.state["input_json"] != None:
-            current_node = "json_parser"
-        if self.state["input_text_file"] != None:
-            current_node = "text_to_structure"
-        while current_node:
-            node_func = self.graph.nodes[current_node]["func"]
-            response = node_func(self.state)
-
-            # Store response in state
-            self.state[current_node + "_response"] = response
-            if current_node == "human_confirm":
-                if self.state.get("human_confirm", "").lower() == "yes":
-                    current_node = None
-                elif self.state.get("human_confirm", "").lower() == "no":
-                    if self.state["start_point"] == 'text':
-                        current_node = "text_to_structure"
-                    elif self.state["start_point"] == 'json':
-                        current_node = "json_parser"
-                else:
-                    current_node = None
-
-            else: # Move to next node (or stop if None)
-                next_nodes = list(self.graph.successors(current_node))
-                current_node = next_nodes[0] if next_nodes else None
+    return builder.compile()
